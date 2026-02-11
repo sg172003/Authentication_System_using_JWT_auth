@@ -90,8 +90,8 @@ const refreshAccessToken = async (req, res) => {
     }
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
 
-    const newAccessToken = generateAccessToken()
-    { userId: decoded.userId }
+    const newAccessToken = generateAccessToken(
+    { userId: decoded.userId })
 
     res.status(200).json({
       accessToken: newAccessToken
