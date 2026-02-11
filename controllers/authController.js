@@ -5,6 +5,7 @@ const {
   generateRefreshToken
 } = require("../utils/token")
 
+//signUp function 
 const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body
@@ -35,40 +36,49 @@ const signup = async (req, res) => {
   }
 }
 
+//Login function
 const login = async (req, res) => {
-  try {
-    const { email, password } = req.body
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" })
+  try{
+    const {email, password} = req.body
+   
+  if(!email || !password) {
+    return res.status(400).json({message : "All fields are required"})
+  }
+
+  const user  = await User.findOne({ email })
+    if (!user){
+      return res.status(401).json({ message: "Invalid email or password"})
     }
 
-    const user = await User.findOne({ email })
-    if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" })
+    const validPassword = await bcrypt.compare(password, user.password)
+
+    if(!validPassword) {
+      return res.status(401).json({ message: "Invalid email or password"})
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password)
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" })
-    }
-
-    const accessToken = generateAccessToken({
-      userId: user._id
+    const accessToken = generateAccessToken ({
+      userId : user._id
     })
 
-    const refreshToken = generateRefreshToken({
-      userId: user._id
+    const refreshToken = generateRefreshToken ({
+      userId : user._id
     })
 
     res.status(200).json({
-      message: "Login successful",
+      message: "Login Successful",
       accessToken,
       refreshToken
     })
-  } catch (error) {
-    res.status(500).json({ message: "Server error" })
+
+
+  }
+  catch(error) {
+    return res.status(500).json({ message: "Server Error" , error })
   }
 }
 
-module.exports = { signup, login }
+module.exports ={
+  signup,
+  login
+}
