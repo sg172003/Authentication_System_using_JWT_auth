@@ -8,12 +8,12 @@ router.post("/signup", signup)
 router.post("/login", login)
 router.post("/refresh", refreshAccessToken)
 
-//create a protected route for user profile 
-router.get("/profile", authMiddleware , (req, res) => {
-    res.json({
-        messageL: "Secured Route Accessed",
-        user: req.user
-    })
+// create a protected route for user profile
+router.get("/profile", authMiddleware, (req, res) => {
+  res.json({
+    message: "Secured Route Accessed",
+    user: req.user
+  })
 })
 
 module.exports = router
