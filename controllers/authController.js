@@ -66,6 +66,10 @@ const login = async (req, res) => {
       userId: user._id
     })
 
+    user.refreshToken = refreshToken
+    await user.save()
+
+
     res.status(200).json({
       message: "Login Successful",
       accessToken,
@@ -91,7 +95,7 @@ const refreshAccessToken = async (req, res) => {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
 
     const newAccessToken = generateAccessToken(
-    { userId: decoded.userId })
+      { userId: decoded.userId })
 
     res.status(200).json({
       accessToken: newAccessToken
