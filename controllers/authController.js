@@ -66,6 +66,10 @@ const login = async (req, res) => {
       userId: user._id
     })
 
+    user.refreshToken = refreshToken
+    await user.save()
+
+
     res.status(200).json({
       message: "Login Successful",
       accessToken,
@@ -90,8 +94,14 @@ const refreshAccessToken = async (req, res) => {
     }
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
 
+    const user = await User.findById(decoded.userId)
+
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: "Refresh token not recognized" })
+    }
+
     const newAccessToken = generateAccessToken(
-    { userId: decoded.userId })
+      { userId: decoded.userId })
 
     res.status(200).json({
       accessToken: newAccessToken
@@ -101,8 +111,38 @@ const refreshAccessToken = async (req, res) => {
   }
 }
 
+//log out function
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body
+
+    if(!refreshToken){
+      return res.status(400).json({message:"Refresh token required"})
+    }
+
+const decoded = jwt.verify(refreshToken , process.env.JWT_REFRESH_SECRET)
+
+const user = await User.findById(decoded.userId)
+
+if (!user){
+  return res.status(404).json({message:"User not found "})
+}
+
+//delte the existing refresh token 
+user.refreshToken =null
+await user.save()
+
+return res.status(200).json({message: "Logged out successfully"})
+
+
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid refresh token" })
+  }
+}
+
 module.exports = {
   signup,
   login,
-  refreshAccessToken
+  refreshAccessToken,
+  logout
 }
