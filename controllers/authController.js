@@ -94,6 +94,12 @@ const refreshAccessToken = async (req, res) => {
     }
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
 
+    const user = await User.findById(decoded.userId)
+
+    if (!user || user.refreshToken !== refreshToken){
+      return res.status(403).json({message: "Refresh token not recognized"})
+    }
+
     const newAccessToken = generateAccessToken(
       { userId: decoded.userId })
 
