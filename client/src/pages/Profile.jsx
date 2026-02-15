@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import api from "../services/api"
+
 
 function Profile() {
   const [userData, setUserData] = useState(null)
@@ -17,14 +19,8 @@ function Profile() {
       }
 
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-        )
+       const res = await api.get("/auth/profile")
+
 
         setUserData(res.data)
       } catch (err) {
