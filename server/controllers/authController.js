@@ -6,13 +6,32 @@ const {
   generateRefreshToken
 } = require("../utils/token")
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
+
 //signUp function 
 const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const rawName = req.body?.name ?? ""
+    const rawEmail = req.body?.email ?? ""
+    const rawPassword = req.body?.password ?? ""
+
+    const name = String(rawName).trim()
+    const email = String(rawEmail).trim().toLowerCase()
+    const password = String(rawPassword)
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" })
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" })
+    }
+
+    if (!STRONG_PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+      })
     }
 
     const existingUser = await User.findOne({ email })
@@ -33,6 +52,15 @@ const signup = async (req, res) => {
       userId: user._id
     })
   } catch (error) {
+    if (error?.code === 11000 && (error?.keyPattern?.email || error?.keyValue?.email)) {
+      return res.status(409).json({ message: "User already exists" })
+    }
+
+    if (error?.name === "ValidationError") {
+      return res.status(400).json({ message: "Invalid signup data" })
+    }
+
+    console.error("Signup error:", error)
     res.status(500).json({ message: "Server error" })
   }
 }
@@ -41,10 +69,17 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
 
   try {
-    const { email, password } = req.body
+    const rawEmail = req.body?.email ?? ""
+    const rawPassword = req.body?.password ?? ""
+    const email = String(rawEmail).trim().toLowerCase()
+    const password = String(rawPassword)
 
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" })
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" })
     }
 
     const user = await User.findOne({ email })
