@@ -1,6 +1,11 @@
 import { useState } from "react"
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -24,7 +29,10 @@ function Signup() {
     setError("")
 
     try {
-      await axios.post("http://localhost:5000/api/auth/signup", formData)
+      await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        formData
+      )
       navigate("/login")
     } catch (err) {
       setError(
@@ -34,47 +42,63 @@ function Signup() {
   }
 
   return (
-    <div>
-      <h2>Signup</h2>
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl font-semibold">
+            Create your account
+          </CardTitle>
+        </CardHeader>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <CardContent>
+          {error && (
+            <p className="text-sm text-red-500 mb-4">
+              {error}
+            </p>
+          )}
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Name</Label>
+              <Input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                required
+              />
+            </div>
 
-        <div>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
 
-        <div>
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <div>
+              <Label>Password</Label>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
 
-        <button type="submit">Signup</button>
-      </form>
+            <Button className="w-full">
+              Sign Up
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }
