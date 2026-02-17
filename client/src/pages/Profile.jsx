@@ -19,7 +19,7 @@ function Profile() {
       }
 
       try {
-       const res = await api.get("/auth/profile")
+        const res = await api.get("/auth/profile")
 
 
         setUserData(res.data)
@@ -46,7 +46,9 @@ function Profile() {
     <div>
       <h2>Profile Dashboard</h2>
       <pre>{JSON.stringify(userData, null, 2)}</pre>
+
     </div>
+
   )
 }
 
